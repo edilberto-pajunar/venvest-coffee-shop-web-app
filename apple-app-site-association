@@ -1,0 +1,9 @@
+{
+    "applinks": {
+        "details": [
+            {
+                "appIDs": ["com.example.frontendCoffeeShop"],
+            }
+        ]
+    }
+}

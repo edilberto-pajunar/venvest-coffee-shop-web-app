@@ -1,0 +1,269 @@
+---
+name: dashboard
+description: Coffee Shop Management Dashboard - Web Interface
+---
+
+# Coffee Shop Management Dashboard Specification
+
+## Architecture Overview
+Web-based dashboard for managing Coffee Shop Print Server network. Provides real-time monitoring, configuration, and analytics for all printer nodes.
+
+## Technology Stack
+- **Platform**: Web (Next.js 15+ with App Router)
+- **Framework**: React with TypeScript
+- **Database**: Google Firebase Firestore
+- **Styling**: Tailwind CSS
+- **Authentication**: Firebase Auth (admin accounts only)
+- **Hosting**: Vercel or Firebase Hosting
+- **State Management**: React hooks with Context API
+- **Real-time**: Firebase real-time listeners
+
+## Firebase Database Schema
+
+### print_queue Collection
+- printer_id: String (e.g., "AKL", "TAU", "HUR")
+- line_1 to line_15: String (text content for each line)
+- service_time: Timestamp (when to execute print job)
+- status: String ("pending", "processing", "completed", "failed")
+- created_at: Timestamp
+- completed_at: Timestamp (nullable)
+
+### line_decoration Collection
+- printer_id: String
+- line_1_font_size: Number (1-10)
+- line_1_align: String ("left", "center", "right")
+- line_2_font_size to line_15_font_size: Number (1-10)
+- line_2_align to line_15_align: String
+- updated_at: Timestamp
+
+### logs Collection
+- printer_id: String
+- timestamp: Timestamp
+- level: String ("info", "warning", "error")
+- message: String
+- job_id: String (reference to print_queue)
+
+### printers Collection
+- printer_id: String (document ID)
+- location: String
+- last_seen: Timestamp
+- is_online: Boolean
+- device_info: Object
+- setup_completed: Boolean
+
+## UI/UX Design Guidelines
+
+### Dashboard Layout
+**Navigation Bar** (Top)
+- Coffee Shop branding/logo
+- Page navigation: Dashboard, Printers, Logs, Settings
+- User profile dropdown with logout option
+
+**Overview Section** (Top)
+- Total printers count
+- Online/offline status summary
+- Total jobs today
+- Success rate percentage
+- Cards with icons and statistics
+
+**Printer Status Grid** (Middle)
+- Grid of printer cards (3-4 columns responsive)
+- Each card shows:
+  - Printer ID (large, bold)
+  - Location
+  - Status indicator (green/red circle)
+  - Last seen timestamp
+  - Jobs completed today
+  - Quick action buttons (View, Configure, Test Print)
+
+**Recent Activity Feed** (Right Sidebar)
+- Real-time log stream
+- Color-coded by level (info/warning/error)
+- Timestamp and printer ID
+- Auto-scroll for new entries
+
+### Color Scheme (Coffee Shop Theme)
+- **Primary**: #6F4E37 (Coffee Brown)
+- **Secondary**: #C7A17A (Latte)
+- **Background**: #F5F5DC (Cream/Beige)
+- **Card Background**: #FFFFFF (White)
+- **Success**: #2E7D32 (Dark Green)
+- **Error**: #C62828 (Dark Red)
+- **Warning**: #F57C00 (Orange)
+- **Text Primary**: #3E2723 (Dark Brown)
+- **Text Secondary**: #795548 (Medium Brown)
+- **Border**: #D7CCC8 (Light Brown)
+
+### Typography
+- **Headers**: text-xl/2xl, font-bold, Coffee Brown
+- **Subheaders**: text-lg, font-semibold, Dark Brown
+- **Body**: text-base, font-normal, Dark Brown
+- **Captions**: text-sm, font-normal, Medium Brown
+- **Status Text**: text-sm, font-medium
+
+### Component Patterns
+**Status Indicator**
+- Green circle: Online/Connected
+- Red circle: Offline/Disconnected
+- Yellow circle: Warning state
+- Pulse animation for active status
+
+**Card Design**
+- White background with subtle shadow
+- Light brown border
+- Rounded corners (rounded-lg)
+- Hover effect with slight elevation
+
+**Buttons**
+- Primary: Coffee Brown background, white text
+- Secondary: White background, Coffee Brown border and text
+- Danger: Dark Red background, white text
+- Rounded (rounded-md)
+- Hover state with darker shade
+
+## Features
+
+### Dashboard Page
+- Real-time overview of all printers
+- Statistics cards (total printers, online count, jobs today, success rate)
+- Printer status grid with live updates
+- Recent activity feed
+- Quick actions for common tasks
+
+### Printers Page
+- Detailed list of all printers
+- Sortable and filterable table
+- Status, location, last seen, jobs count
+- Individual printer detail view with:
+  - Current configuration
+  - Job history
+  - Line decoration settings
+  - Performance metrics
+- Edit configuration capability
+- Test print function
+- Delete/deactivate printer
+
+### Logs Page
+- Comprehensive log viewer
+- Filters: printer_id, level, date range
+- Search functionality
+- Pagination
+- Export logs to CSV
+- Color-coded by severity level
+
+### Settings Page
+- Email notification settings
+- Alert thresholds configuration
+- User management (admin only)
+- API key management
+- Database backup/restore options
+
+### Setup Page
+- Generate setup QR codes for new printers
+- Configure printer_id and location
+- Set initial line decoration defaults
+- Send configuration to printer
+
+## Security Requirements
+
+### Authentication
+- Firebase Auth with email/password
+- Admin role required for all access
+- Session timeout after 30 minutes inactivity
+- Secure logout clears all local state
+
+### Access Control
+- Firestore Security Rules enforce admin-only access
+- Rate limiting on API endpoints
+- CORS configured for allowed domains only
+
+### Data Protection
+- All connections over HTTPS
+- Environment variables for sensitive config
+- No sensitive data in client-side code
+
+## Performance Targets
+- Initial page load: <2s
+- Real-time update latency: <500ms
+- Dashboard refresh: <1s
+- 60fps smooth animations
+- Responsive on desktop and tablet (min-width: 768px)
+
+## Code Style Guidelines
+
+### File Organization
+```
+/app
+  /dashboard
+    page.tsx
+    layout.tsx
+  /printers
+    page.tsx
+    /[id]
+      page.tsx
+  /logs
+    page.tsx
+  /settings
+    page.tsx
+  /setup
+    page.tsx
+  layout.tsx
+  page.tsx
+  globals.css
+/components
+  /ui
+    Button.tsx
+    Card.tsx
+    StatusIndicator.tsx
+    Table.tsx
+  /dashboard
+    StatsCard.tsx
+    PrinterCard.tsx
+    ActivityFeed.tsx
+  /printers
+    PrinterList.tsx
+    PrinterDetail.tsx
+    LineDecorationEditor.tsx
+  Navbar.tsx
+/lib
+  /firebase
+    config.ts
+    firestore.ts
+    auth.ts
+  /hooks
+    usePrinters.ts
+    useLogs.ts
+    useAuth.ts
+  /utils
+    formatters.ts
+    validators.ts
+  types.ts
+/public
+  /images
+```
+
+### Naming Conventions
+- Components: PascalCase (e.g., PrinterCard.tsx)
+- Utilities: camelCase (e.g., formatTimestamp)
+- Constants: SCREAMING_SNAKE_CASE (e.g., MAX_PRINTERS)
+- Files: PascalCase for components, camelCase for utilities
+
+### TypeScript Standards
+- Strict mode enabled
+- Explicit return types for functions
+- Interface for data models
+- Type-safe Firebase queries
+- No 'any' types unless absolutely necessary
+
+## Responsive Design
+- Desktop first approach (min-width: 1024px)
+- Tablet support (min-width: 768px)
+- Mobile view (optional, warning for best experience on desktop)
+- Grid adjusts: 4 cols -> 2 cols -> 1 col
+- Sidebar collapses to drawer on tablet
+
+## Testing Requirements
+- Unit tests for utility functions
+- Integration tests for Firebase operations
+- E2E tests for critical user flows
+- Visual regression tests for UI components
