@@ -1,5 +1,5 @@
 import { COFFEE_PALETTE } from "@/app/constants/theme";
-import { Printer } from "@/app/printer/interface/printer";
+import { Printer } from "@/app/printer/interface/Printer";
 
 interface PrinterItemProps {
     printer: Printer

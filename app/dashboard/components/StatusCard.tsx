@@ -1,5 +1,4 @@
 import { COFFEE_PALETTE } from "@/app/constants/theme";
-import { Printer } from "@/app/printer/interface/printer";
 import { ReactNode } from "react";
 
 interface StatusCardProps {

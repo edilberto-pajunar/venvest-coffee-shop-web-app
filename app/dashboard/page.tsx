@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { COFFEE_PALETTE } from "../constants/theme";
 import { usePrinterStore } from "../printer/store/usePrinterStore";
 import { Log } from "../logs/interface/Log";
-import { Printer } from "../printer/interface/printer";
+import { Printer } from "../printer/interface/Printer";
 import StatusCard from "./components/StatusCard";
 import PrinterItem from "./components/PrinterItem";
 import RecentActivity from "./components/RecentActivity";
