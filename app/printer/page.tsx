@@ -154,12 +154,6 @@ export default function PrinterPage() {
                                     <MapPin className="w-4 h-4" />
                                     <span>Location: {printer.label}</span>
                                 </div>
-                                {printer.url && (
-                                    <div className="flex items-center gap-2" style={{ color: COFFEE_PALETTE.textSecondary }}>
-                                        <LinkIcon className="w-4 h-4" />
-                                        <span className="text-xs truncate">{printer.url}</span>
-                                    </div>
-                                )}
                             </div>
 
                             <div className="mt-4 pt-4 border-t space-y-2" style={{ borderColor: COFFEE_PALETTE.border }}>
@@ -189,35 +183,7 @@ export default function PrinterPage() {
                                             />
                                         </div>
                                         
-                                        {printer.url && (
-                                            <div className="mb-3 p-2 rounded border" style={{ 
-                                                backgroundColor: COFFEE_PALETTE.cardBg,
-                                                borderColor: COFFEE_PALETTE.border 
-                                            }}>
-                                                <p className="text-xs font-medium mb-1" style={{ color: COFFEE_PALETTE.textPrimary }}>
-                                                    Connection URL:
-                                                </p>
-                                                <p className="text-xs font-mono wrap-break-word" style={{ color: COFFEE_PALETTE.textSecondary }}>
-                                                    {printer.url}
-                                                </p>
-                                            </div>
-                                        )}
-
                                         <div className="grid grid-cols-2 gap-2">
-                                            {printer.url && (
-                                                <button
-                                                    onClick={() => handleCopyUrl(printer.url!)}
-                                                    className="py-2 px-3 rounded-md text-xs font-medium border transition-opacity hover:opacity-90 flex items-center justify-center gap-1"
-                                                    style={{ 
-                                                        borderColor: COFFEE_PALETTE.primary,
-                                                        color: COFFEE_PALETTE.primary,
-                                                        backgroundColor: 'transparent'
-                                                    }}
-                                                >
-                                                    <Copy size={12} />
-                                                    Copy URL
-                                                </button>
-                                            )}
                                             <button
                                                 onClick={() => handleDownloadQR(printer.id)}
                                                 className="py-2 px-3 rounded-md text-xs font-medium border transition-opacity hover:opacity-90 flex items-center justify-center gap-1"
