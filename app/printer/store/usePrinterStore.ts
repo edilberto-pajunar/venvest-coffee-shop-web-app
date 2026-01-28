@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { Unsubscribe } from "firebase/firestore";
 import { PrinterService } from "../services/PrinterService";
-import { Printer } from "../interface/printer";
+import { Printer } from "../interface/Printer";
 
 interface PrinterStore {
     printers: Printer[];
