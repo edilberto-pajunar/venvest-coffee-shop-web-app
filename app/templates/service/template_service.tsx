@@ -1,8 +1,8 @@
 import { collection, onSnapshot, deleteDoc, doc, addDoc } from "firebase/firestore";
-import { Template, ReceiptSectionStyles } from "../interface/Template";
+import { Template, SectionStyles } from "../interface/Template";
 import { db } from "@/app/utils/firebase.browser";
 
-const DEFAULT_SECTIONS: ReceiptSectionStyles = {
+const DEFAULT_SECTIONS: SectionStyles = {
     header: { fontSize: 18, alignment: 'center', isBold: true },
     metadata: { fontSize: 12, alignment: 'left', isBold: false },
     itemRow: { fontSize: 14, alignment: 'left', isBold: false },
