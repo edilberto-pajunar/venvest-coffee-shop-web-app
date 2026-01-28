@@ -1,4 +1,4 @@
-import { addDoc, collection, onSnapshot } from "firebase/firestore";
+import { addDoc, collection, onSnapshot, setDoc } from "firebase/firestore";
 import { db } from "@/app/utils/firebase.browser";
 import { Printer } from "../interface/Printer";
 import { doc, updateDoc } from "firebase/firestore";
@@ -47,10 +47,22 @@ export const PrinterService = {
         }
     },
 
-    async addPrinter(printer: Printer): Promise<void> {
+    async addPrinter({
+        label,
+        location
+    }: {
+        label: string,
+        location: string
+    }): Promise<void> {
         try {
-            const docRef = await addDoc(collection(db, "printer"), printer);
-            console.log('✅ Printer added:', docRef.id);
+            const docRef = doc(collection(db, "printer"));
+            await setDoc(docRef, {
+                id: docRef.id,
+                label,
+                location,
+                isOnline: false
+            }, { merge: true });
+            console.log('✅ Printer added:', label);
         } catch (error) {
             console.error('❌ Failed to add printer:', error);
             throw error;
@@ -63,7 +75,6 @@ export const PrinterService = {
             await updateDoc(printerRef, {
                 label: printer.label,
                 isOnline: printer.isOnline,
-                url: printer.url
             });
             console.log('✅ Printer updated:', printer.id);
         } catch (error) {
