@@ -6,7 +6,7 @@
   import { COFFEE_PALETTE } from "../constants/theme";
   import { Plus, Trash2, FileText, AlertCircle, Activity } from "lucide-react";
   import { TemplateService } from "./service/template_service";
-  import { TextStyle } from "./interface/ReceiptTemplate";
+  import { TextStyle } from "./interface/Template";
 
   type ReceiptSection = 'header' | 'metadata' | 'itemRow' | 'totals' | 'footer';
 

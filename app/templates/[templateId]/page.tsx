@@ -1,71 +1,43 @@
 "use client"
 
 import { useState } from "react";
-import { Save, Plus, Trash2, FileText } from "lucide-react";
+import { Save, FileText } from "lucide-react";
 import { COFFEE_PALETTE } from "@/app/constants/theme";
-import { LineDecoration } from "../interface/LineDecoration";
+import { TextStyle, SectionStyles } from "../interface/Template";
 
-const SAMPLE_LINES = [
-  "COFFEE SHOP",
-  "Order #12345",
-  "------------------------",
-  "2x Flat White",
-  "1x Long Black",
-  "1x Cappuccino",
-  "",
-  "Subtotal: $15.50",
-  "Tax: $1.55",
-  "------------------------",
-  "Total: $17.05",
-  "",
-  "Thank you!",
-  "Visit us again",
-  "www.coffeeshop.com"
-];
+const SAMPLE_RECEIPT = {
+  header: ["COFFEE SHOP", "123 Main Street, Auckland"],
+  metadata: ["Order #12345", "Date: 28 Jan 2026", "Cashier: John"],
+  itemRow: ["2x Flat White - $8.00", "1x Long Black - $4.50", "1x Cappuccino - $5.00"],
+  totals: ["Subtotal: $17.50", "Tax (15%): $2.63", "Total: $20.13"],
+  footer: ["Thank you!", "Visit us again", "www.coffeeshop.com"]
+};
+
+const SECTION_LABELS: Record<keyof SectionStyles, { label: string; description: string }> = {
+  header: { label: "Header", description: "Store name and address" },
+  metadata: { label: "Metadata", description: "Order #, date, cashier" },
+  itemRow: { label: "Item Row", description: "Product items purchased" },
+  totals: { label: "Totals", description: "Subtotal, tax, grand total" },
+  footer: { label: "Footer", description: "Thank you message, QR codes" }
+};
 
 export default function TemplatesPage() {
-  const [decorations, setDecorations] = useState<LineDecoration[]>([
-    { id: "1", line: 1, fontSize: 5, alignment: "center" },
-    { id: "2", line: 2, fontSize: 3, alignment: "center" },
-    { id: "3", line: 3, fontSize: 1, alignment: "center" },
-    { id: "4", line: 8, fontSize: 3, alignment: "right" },
-    { id: "5", line: 11, fontSize: 4, alignment: "right" },
-  ]);
+  const [sections, setSections] = useState<SectionStyles>({
+    header: { fontSize: 24, alignment: "center", isBold: true },
+    metadata: { fontSize: 12, alignment: "left", isBold: false },
+    itemRow: { fontSize: 14, alignment: "left", isBold: false },
+    totals: { fontSize: 16, alignment: "right", isBold: true },
+    footer: { fontSize: 12, alignment: "center", isBold: false }
+  });
 
-  const [selectedLine, setSelectedLine] = useState<number | null>(null);
+  const [selectedSection, setSelectedSection] = useState<keyof SectionStyles | null>("header");
   const [saving, setSaving] = useState(false);
 
-  const handleAddDecoration = () => {
-    const availableLines = Array.from({ length: 15 }, (_, i) => i + 1).filter(
-      line => !decorations.some(d => d.line === line)
-    );
-    
-    if (availableLines.length === 0) {
-      alert("All lines already have decorations");
-      return;
-    }
-
-    const newLine = availableLines[0];
-    const newDecoration: LineDecoration = {
-      id: Date.now().toString(),
-      line: newLine,
-      fontSize: 2,
-      alignment: "center"
-    };
-    
-    setDecorations([...decorations, newDecoration]);
-    setSelectedLine(newLine);
-  };
-
-  const handleUpdateDecoration = (id: string, updates: Partial<LineDecoration>) => {
-    setDecorations(decorations.map(d => 
-      d.id === id ? { ...d, ...updates } : d
-    ));
-  };
-
-  const handleDeleteDecoration = (id: string) => {
-    setDecorations(decorations.filter(d => d.id !== id));
-    setSelectedLine(null);
+  const handleUpdateSection = (section: keyof SectionStyles, updates: Partial<TextStyle>) => {
+    setSections(prev => ({
+      ...prev,
+      [section]: { ...prev[section], ...updates }
+    }));
   };
 
   const handleSave = async () => {
@@ -75,20 +47,11 @@ export default function TemplatesPage() {
     alert("Template saved successfully!");
   };
 
-  const getLineStyle = (lineNumber: number) => {
-    const decoration = decorations.find(d => d.line === lineNumber);
-    if (!decoration) {
-      return {
-        fontSize: '1rem',
-        textAlign: 'left' as const,
-        fontWeight: 'normal' as const
-      };
-    }
-
+  const getStyleFromTextStyle = (textStyle: TextStyle) => {
     return {
-      fontSize: `${decoration.fontSize * 0.4 + 0.6}rem`,
-      textAlign: decoration.alignment as "left" | "center" | "right",
-      fontWeight: decoration.fontSize > 4 ? 'bold' as const : 'normal' as const
+      fontSize: `${textStyle.fontSize}px`,
+      textAlign: textStyle.alignment as "left" | "center" | "right",
+      fontWeight: textStyle.isBold ? 'bold' as const : 'normal' as const
     };
   };
 
@@ -96,147 +59,105 @@ export default function TemplatesPage() {
     <main className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-8">
       <div className="mb-6 md:mb-8">
         <h2 className="text-xl md:text-2xl font-bold mb-1" style={{ color: COFFEE_PALETTE.textPrimary }}>
-          Receipt Templates
+          Receipt Template
         </h2>
         <p className="text-sm" style={{ color: COFFEE_PALETTE.textSecondary }}>
-          Configure line decorations for receipt printing • {decorations.length} lines configured
+          Configure section styles for receipt printing • 5 sections
         </p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-1 space-y-4">
           <div className="p-6 rounded-lg shadow-sm border" style={{ backgroundColor: COFFEE_PALETTE.cardBg, borderColor: COFFEE_PALETTE.border }}>
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold" style={{ color: COFFEE_PALETTE.textPrimary }}>
-                Line Decorations
-              </h3>
-              <button
-                onClick={handleAddDecoration}
-                className="p-2 rounded-md transition-opacity hover:opacity-80"
-                style={{ backgroundColor: COFFEE_PALETTE.primary }}
-              >
-                <Plus className="w-4 h-4 text-white" />
-              </button>
-            </div>
+            <h3 className="text-lg font-semibold mb-4" style={{ color: COFFEE_PALETTE.textPrimary }}>
+              Receipt Sections
+            </h3>
 
-            <div className="space-y-2 max-h-[500px] overflow-y-auto">
-              {decorations.sort((a, b) => a.line - b.line).map((decoration) => (
+            <div className="space-y-2">
+              {(Object.keys(sections) as Array<keyof SectionStyles>).map((section) => (
                 <div
-                  key={decoration.id}
-                  onClick={() => setSelectedLine(decoration.line)}
+                  key={section}
+                  onClick={() => setSelectedSection(section)}
                   className="p-3 rounded-md border cursor-pointer transition-all"
                   style={{
-                    backgroundColor: selectedLine === decoration.line ? COFFEE_PALETTE.background : COFFEE_PALETTE.cardBg,
-                    borderColor: selectedLine === decoration.line ? COFFEE_PALETTE.primary : COFFEE_PALETTE.border,
-                    borderWidth: selectedLine === decoration.line ? '2px' : '1px'
+                    backgroundColor: selectedSection === section ? COFFEE_PALETTE.background : COFFEE_PALETTE.cardBg,
+                    borderColor: selectedSection === section ? COFFEE_PALETTE.primary : COFFEE_PALETTE.border,
+                    borderWidth: selectedSection === section ? '2px' : '1px'
                   }}
                 >
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium" style={{ color: COFFEE_PALETTE.textPrimary }}>
-                      Line {decoration.line}
+                  <div className="mb-2">
+                    <span className="text-sm font-medium capitalize" style={{ color: COFFEE_PALETTE.textPrimary }}>
+                      {SECTION_LABELS[section].label}
                     </span>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDeleteDecoration(decoration.id);
-                      }}
-                      className="p-1 rounded hover:bg-red-50 transition-colors"
-                    >
-                      <Trash2 className="w-3 h-3" style={{ color: COFFEE_PALETTE.error }} />
-                    </button>
                   </div>
                   
                   <div className="text-xs space-y-1" style={{ color: COFFEE_PALETTE.textSecondary }}>
-                    <p>Font Size: {decoration.fontSize}</p>
-                    <p className="capitalize">Align: {decoration.alignment}</p>
+                    <p>{SECTION_LABELS[section].description}</p>
+                    <p>Size: {sections[section].fontSize}px • {sections[section].alignment} • {sections[section].isBold ? 'Bold' : 'Normal'}</p>
                   </div>
                 </div>
               ))}
             </div>
           </div>
 
-          {selectedLine && (
+          {selectedSection && (
             <div className="p-6 rounded-lg shadow-sm border" style={{ backgroundColor: COFFEE_PALETTE.cardBg, borderColor: COFFEE_PALETTE.border }}>
-              <h3 className="text-lg font-semibold mb-4" style={{ color: COFFEE_PALETTE.textPrimary }}>
-                Edit Line {selectedLine}
+              <h3 className="text-lg font-semibold mb-4 capitalize" style={{ color: COFFEE_PALETTE.textPrimary }}>
+                Edit {SECTION_LABELS[selectedSection].label}
               </h3>
 
-              {(() => {
-                const decoration = decorations.find(d => d.line === selectedLine);
-                if (!decoration) return null;
-
-                return (
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium mb-2" style={{ color: COFFEE_PALETTE.textPrimary }}>
-                        Line Number
-                      </label>
-                      <select
-                        value={decoration.line}
-                        onChange={(e) => {
-                          const newLine = parseInt(e.target.value);
-                          if (!decorations.some(d => d.line === newLine && d.id !== decoration.id)) {
-                            handleUpdateDecoration(decoration.id, { line: newLine });
-                            setSelectedLine(newLine);
-                          }
-                        }}
-                        className="w-full px-3 py-2 rounded-md border focus:outline-none focus:ring-2"
-                        style={{ 
-                          borderColor: COFFEE_PALETTE.border,
-                          color: COFFEE_PALETTE.textPrimary
-                        }}
-                      >
-                        {Array.from({ length: 15 }, (_, i) => i + 1).map(lineNum => (
-                          <option 
-                            key={lineNum} 
-                            value={lineNum}
-                            disabled={decorations.some(d => d.line === lineNum && d.id !== decoration.id)}
-                          >
-                            Line {lineNum}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium mb-2" style={{ color: COFFEE_PALETTE.textPrimary }}>
-                        Font Size: {decoration.fontSize}
-                      </label>
-                      <input
-                        type="range"
-                        min="1"
-                        max="10"
-                        value={decoration.fontSize}
-                        onChange={(e) => handleUpdateDecoration(decoration.id, { fontSize: parseInt(e.target.value) })}
-                        className="w-full"
-                      />
-                      <div className="flex justify-between text-xs mt-1" style={{ color: COFFEE_PALETTE.textSecondary }}>
-                        <span>Small (1)</span>
-                        <span>Large (10)</span>
-                      </div>
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium mb-2" style={{ color: COFFEE_PALETTE.textPrimary }}>
-                        Alignment
-                      </label>
-                      <select
-                        value={decoration.alignment}
-                        onChange={(e) => handleUpdateDecoration(decoration.id, { alignment: e.target.value })}
-                        className="w-full px-3 py-2 rounded-md border focus:outline-none focus:ring-2"
-                        style={{ 
-                          borderColor: COFFEE_PALETTE.border,
-                          color: COFFEE_PALETTE.textPrimary
-                        }}
-                      >
-                        <option value="left">Left</option>
-                        <option value="center">Center</option>
-                        <option value="right">Right</option>
-                      </select>
-                    </div>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium mb-2" style={{ color: COFFEE_PALETTE.textPrimary }}>
+                    Font Size: {sections[selectedSection].fontSize}px
+                  </label>
+                  <input
+                    type="range"
+                    min="8"
+                    max="48"
+                    value={sections[selectedSection].fontSize}
+                    onChange={(e) => handleUpdateSection(selectedSection, { fontSize: parseInt(e.target.value) })}
+                    className="w-full"
+                  />
+                  <div className="flex justify-between text-xs mt-1" style={{ color: COFFEE_PALETTE.textSecondary }}>
+                    <span>8px</span>
+                    <span>48px</span>
                   </div>
-                );
-              })()}
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-2" style={{ color: COFFEE_PALETTE.textPrimary }}>
+                    Alignment
+                  </label>
+                  <select
+                    value={sections[selectedSection].alignment}
+                    onChange={(e) => handleUpdateSection(selectedSection, { alignment: e.target.value as 'left' | 'center' | 'right' })}
+                    className="w-full px-3 py-2 rounded-md border focus:outline-none focus:ring-2"
+                    style={{ 
+                      borderColor: COFFEE_PALETTE.border,
+                      color: COFFEE_PALETTE.textPrimary
+                    }}
+                  >
+                    <option value="left">Left</option>
+                    <option value="center">Center</option>
+                    <option value="right">Right</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={sections[selectedSection].isBold}
+                      onChange={(e) => handleUpdateSection(selectedSection, { isBold: e.target.checked })}
+                      className="w-4 h-4 rounded"
+                    />
+                    <span className="text-sm font-medium" style={{ color: COFFEE_PALETTE.textPrimary }}>
+                      Bold Text
+                    </span>
+                  </label>
+                </div>
+              </div>
             </div>
           )}
 
@@ -273,31 +194,29 @@ export default function TemplatesPage() {
               className="rounded-lg border-2 p-8 font-mono bg-white min-h-[600px]"
               style={{ borderColor: COFFEE_PALETTE.border }}
             >
-              {SAMPLE_LINES.map((line, index) => {
-                const lineNumber = index + 1;
-                const style = getLineStyle(lineNumber);
-                const hasDecoration = decorations.some(d => d.line === lineNumber);
-
-                return (
-                  <div
-                    key={index}
-                    onClick={() => hasDecoration && setSelectedLine(lineNumber)}
-                    className={`mb-1 ${hasDecoration ? 'cursor-pointer hover:bg-yellow-50' : ''} transition-colors px-2 py-1 rounded`}
-                    style={{
-                      ...style,
-                      color: COFFEE_PALETTE.textPrimary,
-                      backgroundColor: selectedLine === lineNumber ? '#FEF3C7' : 'transparent',
-                      minHeight: '1.5rem',
-                      position: 'relative'
-                    }}
-                  >
-                    <span className="absolute left-0 -ml-6 text-xs" style={{ color: COFFEE_PALETTE.textSecondary }}>
-                      {lineNumber}
-                    </span>
-                    {line || <span style={{ opacity: 0.3 }}>(empty)</span>}
-                  </div>
-                );
-              })}
+              {(Object.keys(SAMPLE_RECEIPT) as Array<keyof typeof SAMPLE_RECEIPT>).map((section) => (
+                <div
+                  key={section}
+                  onClick={() => setSelectedSection(section)}
+                  className="mb-4 cursor-pointer hover:bg-yellow-50 transition-colors px-2 py-2 rounded"
+                  style={{
+                    backgroundColor: selectedSection === section ? '#FEF3C7' : 'transparent'
+                  }}
+                >
+                  {SAMPLE_RECEIPT[section].map((line, index) => (
+                    <div
+                      key={index}
+                      style={{
+                        ...getStyleFromTextStyle(sections[section]),
+                        color: COFFEE_PALETTE.textPrimary,
+                        marginBottom: '4px'
+                      }}
+                    >
+                      {line}
+                    </div>
+                  ))}
+                </div>
+              ))}
             </div>
 
             <div className="mt-4 p-3 rounded-md" style={{ backgroundColor: COFFEE_PALETTE.background }}>
@@ -305,10 +224,10 @@ export default function TemplatesPage() {
                 Preview Notes:
               </p>
               <ul className="text-xs space-y-1" style={{ color: COFFEE_PALETTE.textSecondary }}>
-                <li>• Click on decorated lines to edit their settings</li>
-                <li>• Line numbers are shown on the left for reference</li>
-                <li>• Empty lines can also have decorations applied</li>
-                <li>• Highlighted line indicates current selection</li>
+                <li>• Click on any section to edit its style</li>
+                <li>• All lines in a section share the same style</li>
+                <li>• Highlighted section indicates current selection</li>
+                <li>• Changes are reflected in real-time</li>
               </ul>
             </div>
           </div>

@@ -1,14 +1,14 @@
 // The overall configuration for a specific printer or store
-export interface ReceiptTemplate {
+export interface Template {
     id: string;
     name: string; // e.g., "Standard Coffix Receipt"
-    sections: ReceiptSectionStyles; // Fixed set of logical sections
+    sections: SectionStyles; // Fixed set of logical sections
     createdAt: Date;
     updatedAt?: Date;
 }
 
 // A mapped object ensuring we have styles for all required parts of a receipt
-export interface ReceiptSectionStyles {
+export interface SectionStyles {
     header: TextStyle;       // For Store Name, Address
     metadata: TextStyle;     // For Order #, Date, Cashier Name
     itemRow: TextStyle;      // For the actual coffee/food items (Repeats N times)

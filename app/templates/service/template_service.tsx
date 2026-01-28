@@ -1,5 +1,5 @@
 import { collection, onSnapshot, deleteDoc, doc, addDoc } from "firebase/firestore";
-import { Template, ReceiptSectionStyles } from "../interface/ReceiptTemplate";
+import { Template, ReceiptSectionStyles } from "../interface/Template";
 import { db } from "@/app/utils/firebase.browser";
 
 const DEFAULT_SECTIONS: ReceiptSectionStyles = {

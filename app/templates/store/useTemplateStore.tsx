@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { Unsubscribe } from "firebase/firestore";
 import { TemplateService } from "../service/template_service";
-import { Template } from "../interface/ReceiptTemplate";
+import { Template } from "../interface/Template";
 
 interface TemplateStore {
     unsubscribe: Unsubscribe | null;
